@@ -1,0 +1,63 @@
+body, html 
+{
+    margin:0;
+    height: 100%;
+}
+
+* {
+    box-sizing: border-box;
+  }
+
+header
+{
+    background-color: #2980b9;
+    height: 60px;
+    font-size: 40px;
+    color:white;
+    text-align: center;
+}
+
+footer
+{
+    height: 60px;
+    background-color: black;
+}
+
+.dunoir
+{
+    background-color:#34495e;
+    color : white;
+}
+
+.bloc-prim
+{
+    font-size: 16px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    height: 100%;
+    padding: 20px;
+    text-align: center;
+    background-color: #ffffff;
+    overflow: scroll;
+}
+
+form input
+{
+    margin : 8px;
+}
+
+.blocs
+{
+    font-size: 16px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5%;
+    border: 3px;
+    border-radius: 3%;
+    width: 50%;
+    height: 80%;
+    padding: 20px;
+    text-align: left;
+    background-color: #e6ecf0;
+}

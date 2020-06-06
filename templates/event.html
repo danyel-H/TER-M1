@@ -1,0 +1,25 @@
+{% with titre="Evenement", connect=conn %}
+    {% include "header.html" %}
+{% endwith %}    
+    <body>	
+        <div class="bloc-prim">	
+            <h2>Détails de l'évènement "{{ event.summary }}"" </h1><br />
+                <div class="blocs">
+                    Calendrier auquel il appartient : {{ cal }} <br/>
+                    Nom de l'évènement : {{ event.summary }} <br/>
+                    Sa description : {{ event.description }} <br/>
+                    Son lieu : {{ event.location }} <br/>
+                    Le créateur : {{ event.creator.email }} <br/><br/>
+                    L'organisateur : {{ event.organizer.email }} <br/>
+
+                    Durée : (Format JJ/MM/AAAA) <br/>
+                    Du : {{ event.debut.jour }} / {{ event.debut.mois }} / {{ event.debut.annee }} 
+                    à {{ event.debut.heure }} <br/>
+                    Au : {{ event.fin.jour }} / {{ event.fin.mois }} / {{ event.fin.annee }} 
+                    à {{ event.fin.heure }}  <br/><br/>
+
+                    <a href="{{ event.htmlLink }}">Lien de l'évènement</a>
+                </div>
+        </div>
+	</body>
+</html>

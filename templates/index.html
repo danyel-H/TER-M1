@@ -1,0 +1,24 @@
+{% with titre="Accueil", connect=conn %}
+    {% include "header.html" %}
+{% endwith %}    
+    <body>	
+        <div class="bloc-prim">	
+            {% if conn == False %}
+            <h2>Afin d'utiliser l'API Google, commencez par vous connectez :</h2>
+
+            <br/><br/><br/><br/>
+
+            <a href="/auth"><button type="button" class="btn btn-primary">Se connecter</button></a>
+
+            {% else %}
+            <h2>Bonjour, Choisissez le calendrier avec lequel vous voulez intéragir</h1><br />
+                <ul class="list-group">
+                    <li class="list-group-item active">Cliquez sur un calendrier</li>
+                    {% for c in cal %}
+                        <a href="/calendar/{{ c.id }}"><li class="list-group-item"> {{ c.summary }} </li></a>
+                    {% endfor %}
+                </ul>
+            {% endif %}   
+        </div>
+	</body>
+</html>
