@@ -1,0 +1,74 @@
+{% with titre="Création d'évènement", connect=conn %}
+    {% include "header.html" %}
+{% endwith %}    
+<!--
+    event = {
+  'summary': 'Google I/O 2015',
+  'location': '800 Howard St., San Francisco, CA 94103',
+  'description': 'A chance to hear more about Google\'s developer products.',
+  'start': {
+    'dateTime': '2015-05-28T09:00:00-07:00',
+    'timeZone': 'America/Los_Angeles',
+  },
+  'end': {
+    'dateTime': '2015-05-28T17:00:00-07:00',
+    'timeZone': 'America/Los_Angeles',
+  },
+  'recurrence': [
+    'RRULE:FREQ=DAILY;COUNT=2'
+  ],
+  'attendees': [
+    {'email': 'lpage@example.com'},
+    {'email': 'sbrin@example.com'},
+  ],
+  'reminders': {
+    'useDefault': False,
+    'overrides': [
+      {'method': 'email', 'minutes': 24 * 60},
+      {'method': 'popup', 'minutes': 10},
+    ],
+  },
+}
+
+requis : début et fin
+
+-->
+
+
+    <body>	
+        <div class="bloc-prim">	
+            <h2>Créer un évènement</h1><br />
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="nomCal">Nom de l'évènement</label>
+                    <input type="text" class="form-control" name="nom" id="nomDal">
+                </div>
+                <div class="form-group">
+                    <label for="desc">Description</label>
+                    <input type="text" name="desc" class="form-control" id="desc">
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label for="nomCal">Début* (Format jj/mm/aaaa pour les anciens navigateurs)</label>
+                        <input required type="date" class="form-control" name="dateDebut" id="nomDal">
+                    </div>
+                    <div class="form-group col">
+                        <label for="nomCal">Fin* (Format jj/mm/aaaa pour les anciens navigateurs)</label>
+                        <input required type="date" class="form-control" name="dateFin" id="nomDal">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label for="nomCal">Heure de début* (Format hh:mm:ss)</label>
+                        <input pattern="[0-5][0-9]:[0-5][0-9]:[0-5][0-9]" required type="text" class="form-control" name="heureDebut" id="nomDal">
+                    </div>
+                    <div class="form-group col">
+                        <label for="nomCal">Heure de fin* (Format hh:mm:ss)</label>
+                        <input pattern="[0-5][0-9]:[0-5][0-9]:[0-5][0-9]" required type="text" class="form-control" name="heureFin" id="nomDal">
+                    </div>
+                </div>
+                <br/><button type="submit" class="btn btn-primary">Créer</button>
+                </form>
+        </div>
+	</body>
+</html>

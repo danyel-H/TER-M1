@@ -4,10 +4,16 @@
     <body>	
         <div class="bloc-prim">	
             <h2>Les évènements du calendrier {{ nom }} </h1><br />
+                <form style="float:left;" action="add" method="get">
+                    <input type="submit" class="btn btn-secondary" value="Ajouter un évènement"/>
+                </form>
+                <form style="float:right;" action="del" method="get">
+                    <input type="submit" class="btn btn-danger" value="Supprimer le calendrier"/>
+                </form>
                 <ul class="list-group">
                     <li class="list-group-item active">Cliquez sur un évènement pour voir les détails ou le modifier</li>
                     {% for c in cal %}
-                        <a href="/{{ nom }}/{{ c.id }}"><li class="list-group-item"> {{ c.summary }} </li></a>
+                        <a href="/event/{{ nom }}/{{ c.id }}"><li class="list-group-item"> {{ c.summary }} </li></a>
                     {% endfor %}
                 </ul>
         </div>

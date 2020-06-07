@@ -1,0 +1,32 @@
+{% with titre="Création de calendrier", connect=conn %}
+    {% include "header.html" %}
+{% endwith %}    
+    <body>	
+        <div class="bloc-prim">	
+            <h2>Créer un calendrier</h1><br />
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="nomCal">Nom du calendrier*</label>
+                    <input required type="text" class="form-control" name="nom" id="nomDal">
+                </div>
+                <div class="form-group">
+                    <label for="desc">Description</label>
+                    <input type="text" name="desc" class="form-control" id="desc">
+                </div>
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Timezone*</label>
+                    <select required class="form-control" name="tz" id="exampleFormControlSelect1">
+                        {% for elem in tz %}
+                            {% if elem == "Europe/Brussels" %}
+                                <option selected>{{ elem }}</option>
+                            {% else %}
+                                <option>{{ elem }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Créer</button>
+                </form>
+        </div>
+	</body>
+</html>

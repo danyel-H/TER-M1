@@ -67,6 +67,18 @@ class API:
         
         return retour
 
+    def del_calendar(self,cal,service):
+        service.calendars().delete(calendarId=cal).execute()
+
+    def add_calendar(self, json, service):
+        created_calendar = service.calendars().insert(body=json).execute()
+
+    def add_event(self, cal, json, service):
+        event = service.events().insert(calendarId=cal, body=json).execute()
+
+    def del_event(self,cal,id,service):
+        service.events().delete(calendarId=cal, eventId=id).execute()
+
     #permet de récupérer un seul évènement en fonction de son id
     def get_event(self, cal, id, service):
         events = self.get_events(cal, service)

@@ -12,6 +12,7 @@ import json
 from Google import API
 from random import *
 import os 
+import pytz
 
 #os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
@@ -63,7 +64,7 @@ def deco():
 
     return redirect("/")
 
-@app.route("/<cal>/<id>/")
+@app.route("/event/<cal>/<id>/")
 def event(cal=None, id=None):
     if 'credentials' in session:
         calendar = None
@@ -82,6 +83,99 @@ def event(cal=None, id=None):
         event["fin"] = fin
 
         return render_template("event.html", conn=True, cal=summary, event=event)
+    else:
+        return redirect("/")
+
+@app.route("/calendar/<cal>/del")
+def supp_cal(cal=None):
+    if 'credentials' in session:
+        calendar = None
+        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+        service = build('calendar', 'v3', credentials=credentials)
+
+        api.del_calendar(cal, service)
+
+        return redirect("/")
+
+@app.route("/event/<cal>/<id>/del")
+def supp_event(cal=None, id=None):
+    if 'credentials' in session:
+        calendar = None
+        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+        service = build('calendar', 'v3', credentials=credentials)
+
+        api.del_event(cal,id, service)
+
+        return redirect("/calendar/"+cal)
+    else:
+        return redirect("/")
+
+@app.route("/add",  methods=['GET', 'POST'])
+def create_calendar():
+    if 'credentials' in session:
+        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+        service = build('calendar', 'v3', credentials=credentials)
+        if(request.method == 'POST'):
+            if request.form.get("nom") and request.form.get("tz"):
+                json_cal = {
+                    "summary" : request.form["nom"],
+                    "timeZone" : request.form["tz"]
+                } 
+                if request.form.get("desc"):
+                    json_cal["description"] = request.form["desc"]
+
+                api.add_calendar(json_cal, service)
+            return redirect("/")
+        else:
+            tz = pytz.common_timezones
+
+            return render_template("create_cal.html", conn=True, tz=tz)
+
+    else:
+        return redirect("/")
+
+@app.route("/calendar/<id>/add",  methods=['GET', 'POST'])
+def create_event(id=None):
+    if 'credentials' in session:
+        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+        service = build('calendar', 'v3', credentials=credentials)
+
+        if(request.method == 'POST'):
+            if request.form.get("dateDebut") and request.form.get("dateFin") and request.form.get("heureDebut") and request.form.get("heureFin"):
+                
+                #permet de vérifier que les dates sont bonnes
+                temp = request.form["dateDebut"].split("-")
+                temp2 = request.form.get("heureDebut").split(":")
+                dateDebut = datetime.datetime(year=int(temp[0]), month=int(temp[1]), day=int(temp[2]), hour=int(temp2[0]), minute=int(temp2[1]), second=int(temp2[2]))
+
+                temp = request.form["dateFin"].split("-")
+                temp2 = request.form.get("heureFin").split(":")
+                dateFin = datetime.datetime(year=int(temp[0]), month=int(temp[1]), day=int(temp[2]), hour=int(temp2[0]), minute=int(temp2[1]), second=int(temp2[2]))
+
+                if(dateDebut < dateFin):
+                    dateDebut = dateDebut.strftime('%Y-%m-%dT%H:%M:%S+02:00')
+                    dateFin = dateFin.strftime('%Y-%m-%dT%H:%M:%S+02:00')
+
+                    json_event = {
+                        'summary' : "Un évènement test",
+                        'start': {
+                            'dateTime': dateDebut,
+                            'timeZone': 'Europe/Paris'
+                        },
+                        'end': {
+                            'dateTime': dateFin,
+                            'timeZone': 'Europe/Paris'
+                        }
+                    }
+
+                    api.add_event(id, json_event, service)
+
+            return redirect("/calendar/"+id)
+        else:
+            tz = pytz.common_timezones
+
+            return render_template("create_event.html", conn=True, tz=tz)
+
     else:
         return redirect("/")
 

@@ -19,6 +19,10 @@
                     à {{ event.fin.heure }}  <br/><br/>
 
                     <a href="{{ event.htmlLink }}">Lien de l'évènement</a>
+
+                    <form action="del" method="get">
+                        <input type="submit" class="btn btn-danger" value="Supprimer l'évènement"/>
+                    </form>
                 </div>
         </div>
 	</body>
