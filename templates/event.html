@@ -3,7 +3,11 @@
 {% endwith %}    
     <body>	
         <div class="bloc-prim">	
-            <h2>Détails de l'évènement "{{ event.summary }}"" </h1><br />
+            {% if event.summary %}
+                <h2>Détails de l'évènement "{{ event.summary }}" </h1><br />
+            {% else %}
+                <h2>Détails de l'évènement du {{ event.debut.jour }} / {{ event.debut.mois }} / {{ event.debut.annee }}  </h1><br />
+            {% endif %}
                 <div class="blocs">
                     Calendrier auquel il appartient : {{ cal }} <br/>
                     Nom de l'évènement : {{ event.summary }} <br/>
@@ -21,8 +25,15 @@
                     <a href="{{ event.htmlLink }}">Lien de l'évènement</a>
 
                     <form action="del" method="get">
+                        <input type="hidden" name="purpose" value="simple"/>
                         <input type="submit" class="btn btn-danger" value="Supprimer l'évènement"/>
                     </form>
+                    <!--{% if event.recurringEventId %}
+                        <form action="del" method="get">
+                            <input type="hidden" name="purpose" value="all"/>
+                            <input type="submit" class="btn btn-danger" value="Supprimer toutes les récurrences"/>
+                        </form>
+                    {% endif %}-->
                 </div>
         </div>
 	</body>

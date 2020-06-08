@@ -64,6 +64,7 @@ def deco():
 
     return redirect("/")
 
+
 @app.route("/event/<cal>/<id>/")
 def event(cal=None, id=None):
     if 'credentials' in session:
@@ -74,13 +75,13 @@ def event(cal=None, id=None):
         
         summary = api.get_summary(cal, service)
         event = api.get_event(cal, id, service)
-
     
         debut = getTimefromISO((event["start"]["dateTime"]))
         fin = getTimefromISO((event["end"]["dateTime"]))
         
         event["debut"] = debut
         event["fin"] = fin
+        #print(event)
 
         return render_template("event.html", conn=True, cal=summary, event=event)
     else:
@@ -104,7 +105,13 @@ def supp_event(cal=None, id=None):
         credentials = google.oauth2.credentials.Credentials(**session['credentials'])
         service = build('calendar', 'v3', credentials=credentials)
 
-        api.del_event(cal,id, service)
+        if(request.args.get("purpose")):
+            purpose = request.args.get("purpose")
+            if(purpose == "all"):
+                event = api.get_event(cal, id, service)
+                api.supp_recurrences(cal, event["recurringEventId"],service)
+            elif(purpose == "simple"):
+                api.del_event(cal,id, service)
 
         return redirect("/calendar/"+cal)
     else:
@@ -156,17 +163,27 @@ def create_event(id=None):
                     dateDebut = dateDebut.strftime('%Y-%m-%dT%H:%M:%S+02:00')
                     dateFin = dateFin.strftime('%Y-%m-%dT%H:%M:%S+02:00')
 
+                    cal = api.get_one_calendar(id, service)
+
                     json_event = {
-                        'summary' : "Un évènement test",
                         'start': {
                             'dateTime': dateDebut,
-                            'timeZone': 'Europe/Paris'
+                            'timeZone': cal["timeZone"]
                         },
                         'end': {
                             'dateTime': dateFin,
-                            'timeZone': 'Europe/Paris'
+                            'timeZone': cal["timeZone"]
                         }
                     }
+
+                    if request.form.get("nom"):
+                        json_event["summary"] = request.form["nom"]
+                    
+                    if request.form.get("desc"):
+                        json_event["description"] = request.form["desc"]
+
+                    if request.form.get("lieu"):
+                        json_event["location"] = request.form["lieu"]
 
                     api.add_event(id, json_event, service)
 
@@ -187,8 +204,27 @@ def calendar(id=None):
         summary = None
         credentials = google.oauth2.credentials.Credentials(**session['credentials'])
         service = build('calendar', 'v3', credentials=credentials)
-        calendar = api.get_events(id, service)
-        summary = api.get_summary(id, service)
+
+        single = True
+        tempsMax=None
+        titre=""
+        if(request.args.get("dateFin")):
+            temp= request.args.get("dateFin").split("-")
+            tempsMax = datetime.datetime(year=int(temp[0]), month=int(temp[1]), day=int(temp[2]))
+
+        if(request.args.get("check")):
+            single = False
+
+        if(request.args.get("titre")):
+            titre = request.args.get("titre")
+
+        calendar = api.get_events(id, service, single, titre, tempsMax)
+        summary = api.get_one_calendar(id, service)
+
+        temp = api.is_primary(id, service)
+        summary["primary"] = temp
+
+        #print(calendar)
 
         return render_template("calendar.html", cal=calendar, conn=True, nom=summary)
     else:
@@ -198,14 +234,17 @@ def calendar(id=None):
 @app.route("/")
 def main():
     connect = False
-    calendars = None
+    calendars = []
     if 'credentials' in session:
-        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
-        api.set_creds(credentials)
-        connect = True
-        service = build('calendar', 'v3', credentials=credentials)
-        calendars = api.get_calendars(service)
-        print(calendars)
+        try:
+            credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+            api.set_creds(credentials)
+            connect = True
+            service = build('calendar', 'v3', credentials=credentials)
+            calendars = api.get_calendars(service)
+        except(google.auth.exceptions.RefreshError):
+            return redirect("/deconnect")
+        #print(calendars)
     
     return render_template("index.html", conn=connect, cal=calendars)
     

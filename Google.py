@@ -40,7 +40,7 @@ class API:
         page_token = None
         number = 1
         while True:
-            calendar_list = service.calendarList().list(pageToken=page_token).execute()
+            calendar_list = service.calendarList().list(pageToken=page_token, minAccessRole="owner").execute()
             for item in calendar_list['items']:
                 retour.append(item)
             page_token = calendar_list.get('nextPageToken')
@@ -67,6 +67,21 @@ class API:
         
         return retour
 
+    #Permet de savoir si un agenda est l'agenda principal de l'utilisatuer
+    def is_primary(self,id,service):
+        retour = False
+        cals = self.get_calendars(service)
+        for cal in cals:
+            if(cal['id'] == id):
+                if("primary" in cal):
+                    retour = True
+        
+        return retour
+
+    def get_one_calendar(self, cal, service):
+        retour = service.calendars().get(calendarId=cal).execute()
+        return retour
+
     def del_calendar(self,cal,service):
         service.calendars().delete(calendarId=cal).execute()
 
@@ -81,23 +96,38 @@ class API:
 
     #permet de récupérer un seul évènement en fonction de son id
     def get_event(self, cal, id, service):
-        events = self.get_events(cal, service)
-        retour = None
-        for event in events:
-            if(event['id'] == id):
-                retour = event
-        
-        return retour
+        event = service.events().get(calendarId=cal, eventId=id).execute()
+        return event
 
-    def get_events(self, id, service):
+    def get_events(self, id, service, single=True, filtre="", tempsMax=None):
         events = None
-        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+        now = datetime.datetime.utcnow()
+        if(tempsMax):
+            if(tempsMax < now):
+                tempsMax = None
+            else:
+                tempsMax = tempsMax.isoformat() + 'Z'
+
+        now = datetime.datetime.utcnow().isoformat() + 'Z'
+
         events_result = service.events().list(calendarId=id, timeMin=now,
-                                            maxResults=10, singleEvents=True,
-                                            orderBy='startTime').execute()
+                                            singleEvents=single,
+                                            orderBy='startTime', q=filtre, timeMax=tempsMax).execute()
         events = events_result.get('items', [])
 
         return events
+
+    '''def supp_recurrences(self, cal, id, service):
+        # First retrieve the instances from the API.
+        instances = service.events().instances(calendarId=cal, eventId=id).execute()
+
+        print(instances['items'][0])
+        # Select the instance to cancel.
+        instance = instances['items'][0]
+        print(instance)
+        instance['status'] = 'cancelled'
+
+        updated_instance = service.events().update(calendarId=cal, eventId=instance['id'], body=instance).execute()'''
 
     def get_creds(self):
         return self.creds

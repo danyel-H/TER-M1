@@ -42,6 +42,23 @@ footer
     overflow: scroll;
 }
 
+.forms
+{
+    border-radius: 5px;
+    padding: 7px;
+    border: 3px black;
+}
+
+.marge
+{
+    float:left;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    background-color: #f5f0f0bb;
+    height:100%;
+}
+
 form input
 {
     margin : 8px;
