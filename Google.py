@@ -99,7 +99,7 @@ class API:
         event = service.events().get(calendarId=cal, eventId=id).execute()
         return event
 
-    def get_events(self, id, service, single=True, filtre="", tempsMax=None):
+    def get_events(self, id, service, single=True, filtre=None, tempsMax=None):
         events = None
         now = datetime.datetime.utcnow()
         if(tempsMax):
@@ -117,17 +117,28 @@ class API:
 
         return events
 
-    '''def supp_recurrences(self, cal, id, service):
-        # First retrieve the instances from the API.
-        instances = service.events().instances(calendarId=cal, eventId=id).execute()
+    #permet de mettre à jour un évènement
+    def update_event(self, cal,id,service, **kwargs):
+        event = self.get_event(cal, id, service)
 
-        print(instances['items'][0])
-        # Select the instance to cancel.
-        instance = instances['items'][0]
-        print(instance)
-        instance['status'] = 'cancelled'
+        if "nom" in kwargs and kwargs["nom"]:
+            event["summary"] = kwargs["nom"]
+        
+        if "desc" in kwargs and kwargs["desc"]:
+            event["description"] = kwargs["desc"]
+        
+        if "lieu" in kwargs and kwargs["lieu"]:
+            event["location"] = kwargs["lieu"]
 
-        updated_instance = service.events().update(calendarId=cal, eventId=instance['id'], body=instance).execute()'''
+        if "dateDebut" in kwargs and kwargs["dateDebut"]:
+            event["start"]["dateTime"] = kwargs["dateDebut"]
+
+        if "dateFin" in kwargs and kwargs["dateFin"]:
+            event["end"]["dateTime"] = kwargs["dateFin"]
+
+
+        service.events().update(calendarId=cal, eventId=event['id'], body=event).execute()
+
 
     def get_creds(self):
         return self.creds

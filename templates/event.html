@@ -9,31 +9,30 @@
                 <h2>Détails de l'évènement du {{ event.debut.jour }} / {{ event.debut.mois }} / {{ event.debut.annee }}  </h1><br />
             {% endif %}
                 <div class="blocs">
-                    Calendrier auquel il appartient : {{ cal }} <br/>
-                    Nom de l'évènement : {{ event.summary }} <br/>
-                    Sa description : {{ event.description }} <br/>
-                    Son lieu : {{ event.location }} <br/>
-                    Le créateur : {{ event.creator.email }} <br/><br/>
-                    L'organisateur : {{ event.organizer.email }} <br/>
+                    <form action="update" method="POST">
+                        Calendrier auquel il appartient : {{ cal }} <br/>
+                        Nom de l'évènement : <input type="text" disabled id="nom" name="nom" value="{{ event.summary }}" /> <br/>
+                        Sa description : <textarea  disabled style="width: 100%;"  id="desc" name="desc" >{{ event.description }}</textarea> <br/>
+                        Son lieu : <input type="text" disabled id="lieu" name="lieu" value="{{ event.location }}" /> <br/>
+                        Le créateur : {{ event.creator.email }} <br/><br/>
 
-                    Durée : (Format JJ/MM/AAAA) <br/>
-                    Du : {{ event.debut.jour }} / {{ event.debut.mois }} / {{ event.debut.annee }} 
-                    à {{ event.debut.heure }} <br/>
-                    Au : {{ event.fin.jour }} / {{ event.fin.mois }} / {{ event.fin.annee }} 
-                    à {{ event.fin.heure }}  <br/><br/>
+                        Durée : (Format JJ/MM/AAAA) <br/>
+                        Du : <input type="date" disabled id="dateDebut" name="dateDebut" value="{{ event.debut.annee }}-{{ event.debut.mois }}-{{ event.debut.jour }}" />
+                        à <input type="text" disabled id="heureDebut" name="heureDebut" value="{{ event.debut.heure }}" /> <br/>
+                        Au : <input type="date" disabled id="dateFin" name="dateFin" value="{{ event.fin.annee }}-{{ event.fin.mois }}-{{ event.fin.jour }}" />
+                        à <input type="text" disabled id="heureFin" name="heureFin" value="{{ event.fin.heure }}" />  <br/><br/>
 
-                    <a href="{{ event.htmlLink }}">Lien de l'évènement</a>
+                    <a href="{{ event.htmlLink }}">Lien de l'évènement</a><br/><br/>
+
+
+                        <input hidden type="submit" id="btn_modif" class="btn btn-success" value="Enregistrer"/>
+                    </form>
+                    <button onclick="modif_infos()" id="bouton" class="btn btn-warning">Modifier les informations</button>
 
                     <form action="del" method="get">
                         <input type="hidden" name="purpose" value="simple"/>
                         <input type="submit" class="btn btn-danger" value="Supprimer l'évènement"/>
                     </form>
-                    <!--{% if event.recurringEventId %}
-                        <form action="del" method="get">
-                            <input type="hidden" name="purpose" value="all"/>
-                            <input type="submit" class="btn btn-danger" value="Supprimer toutes les récurrences"/>
-                        </form>
-                    {% endif %}-->
                 </div>
         </div>
 	</body>

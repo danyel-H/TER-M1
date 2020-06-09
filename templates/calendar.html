@@ -6,6 +6,9 @@
             <form action="add" method="get">
                 <input type="submit" class="btn btn-secondary" value="Ajouter un évènement"/>
             </form>
+            <form action="csv" method="get">
+                <input type="submit" class="btn btn-dark" value="Télécharger le JSON"/>
+            </form>
             {% if not nom.primary %}
             <form action="del" method="get">
                 <input type="submit" class="btn btn-danger" value="Supprimer le calendrier"/>

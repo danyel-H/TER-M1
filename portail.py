@@ -1,6 +1,8 @@
 #!../bin/python3
 from __future__ import print_function
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, make_response
+import csv
+import io
 import datetime
 import pickle
 import os.path
@@ -64,6 +66,60 @@ def deco():
 
     return redirect("/")
 
+@app.route('/calendar/<id>/csv')
+def dl_csv(id=None):
+    if 'credentials' in session:
+        calendar = None
+        summary = None
+        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+        service = build('calendar', 'v3', credentials=credentials)
+        
+        calendar = api.get_events(id, service)
+        summary = api.get_one_calendar(id, service)
+
+        lignes = []
+        lignes.append(["Titre", "Description", "Lieu", "Créateur" ,"Date de début" ,"Heure de début", "Date de fin","Heure de fin"])
+
+        for ev in calendar:
+            temp = []
+            if "summary" in ev:
+                temp.append(ev["summary"])
+            else:
+                temp.append("")
+
+            if "description" in ev:
+                temp.append(ev["description"])
+            else:
+                temp.append("")
+
+            if "location" in ev:
+                temp.append(ev["location"])
+            else:
+                temp.append("")
+
+            temp.append(ev["creator"]["email"])
+            dateDebut = getTimefromISO((ev["start"]["dateTime"]))
+            dateFin = getTimefromISO((ev["end"]["dateTime"]))
+            temp.append(dateDebut["jour"] +"/"+dateDebut["mois"] +"/"+ dateDebut["annee"])
+            temp.append(dateDebut["heure"])
+            temp.append(dateFin["jour"] +"/"+ dateFin["mois"] +"/"+ dateFin["annee"])
+            temp.append(dateFin["heure"])
+
+            lignes.append(temp)
+
+        si = io.StringIO()
+        cw = csv.writer(si)
+        cw.writerows(lignes)
+        output = make_response(si.getvalue())
+        output.headers["Content-Disposition"] = "attachment; filename="+summary["summary"]+".csv"
+        output.headers["charset"] = "utf-8"
+        output.headers["Content-type"] = "text/csv"
+        
+        return output
+    else:
+        return redirect("/")
+    
+
 
 @app.route("/event/<cal>/<id>/")
 def event(cal=None, id=None):
@@ -81,7 +137,7 @@ def event(cal=None, id=None):
         
         event["debut"] = debut
         event["fin"] = fin
-        #print(event)
+        print(event)
 
         return render_template("event.html", conn=True, cal=summary, event=event)
     else:
@@ -96,6 +152,48 @@ def supp_cal(cal=None):
 
         api.del_calendar(cal, service)
 
+        return redirect("/")
+
+@app.route("/event/<cal>/<id>/update", methods=["POST"])
+def update_event(cal=None, id=None):
+    if 'credentials' in session:
+        calendar = None
+        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+        service = build('calendar', 'v3', credentials=credentials)
+        
+        nom = None
+        desc = None
+        lieu = None
+        dateDebut = None
+        dateFin = None
+
+        if(request.form.get("nom")):
+            nom = request.form["nom"]
+        
+        if(request.form.get("desc")):
+            desc = request.form["desc"]
+        
+        if(request.form.get("lieu")):
+            lieu = request.form["lieu"]
+
+        if request.form.get("dateDebut") and request.form.get("dateFin") and request.form.get("heureDebut") and request.form.get("heureFin"):
+            #permet de vérifier que les dates sont bonnes
+            temp = request.form["dateDebut"].split("-")
+            temp2 = request.form.get("heureDebut").split(":")
+            dateDebut = datetime.datetime(year=int(temp[0]), month=int(temp[1]), day=int(temp[2]), hour=int(temp2[0]), minute=int(temp2[1]), second=int(temp2[2]))
+
+            temp = request.form["dateFin"].split("-")
+            temp2 = request.form.get("heureFin").split(":")
+            dateFin = datetime.datetime(year=int(temp[0]), month=int(temp[1]), day=int(temp[2]), hour=int(temp2[0]), minute=int(temp2[1]), second=int(temp2[2]))
+
+        if(dateDebut < dateFin):
+            dateDebut = dateDebut.strftime('%Y-%m-%dT%H:%M:%S+02:00')
+            dateFin = dateFin.strftime('%Y-%m-%dT%H:%M:%S+02:00')  
+
+        api.update_event(cal, id,service, nom=nom, desc=desc, lieu=lieu, dateDebut=dateDebut, dateFin=dateFin)
+
+        return redirect("/calendar/"+cal)
+    else:
         return redirect("/")
 
 @app.route("/event/<cal>/<id>/del")
@@ -224,7 +322,7 @@ def calendar(id=None):
         temp = api.is_primary(id, service)
         summary["primary"] = temp
 
-        #print(calendar)
+        print(calendar)
 
         return render_template("calendar.html", cal=calendar, conn=True, nom=summary)
     else:
@@ -250,7 +348,7 @@ def main():
     
 
 def getTimefromISO(time):
-        heure = time[12:19]
+        heure = time[11:19]
         date = time[:10]
         temp = date.split("-")        
         json = {
