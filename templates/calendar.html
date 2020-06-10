@@ -7,7 +7,10 @@
                 <input type="submit" class="btn btn-secondary" value="Ajouter un évènement"/>
             </form>
             <form action="csv" method="get">
-                <input type="submit" class="btn btn-dark" value="Télécharger le JSON"/>
+                <input type="submit" class="btn btn-dark" value="Télécharger le CSV"/>
+            </form>
+            <form action="upload" method="get">
+                <input type="submit" class="btn btn-warning" value="Créer à partir d'un JSON"/>
             </form>
             {% if not nom.primary %}
             <form action="del" method="get">

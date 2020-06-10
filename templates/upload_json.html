@@ -1,0 +1,43 @@
+{% with titre="Création avec JSON", connect=conn %}
+    {% include "header.html" %}
+{% endwith %}    
+    <body>	
+        <div class="bloc-prim">	
+            <h2>Créer un évènement avec un fichier JSON</h1><br />
+            <form action="#" method="POST" enctype="multipart/form-data">
+                <input type="file" name="file"/><br/>
+                <button type="submit" class="btn btn-primary">Créer</button>
+            </form>
+
+            <br/><br/>
+            Afin de pouvoir upload l'évènement sur le serveur, veuillez copier coller le JSON ci-dessous et modifier les valeurs qui vous intéressent :<br/>
+            <br/>La recurrence peut poser problème si vous ne connaissez pas le format, elle définit quand, combien de fois et jusqu'a où l'évènement doit se répéter. 
+            <br/>Voici une aide pour la générer : <a href="https://www.textmagic.com/free-tools/rrule-generator">Lien</a> (Attention, quand vous collez, faites bien à attention à laisser le "RRULE:" au début du champ)
+            <br/><br/>Les dates sont au format <b>ISO-8601</b>, une aide est aussi disponible pour la générer : <a href="https://timestampgenerator.com/">Lien</a> (Générez votre date et copier le format ISO-8601 en dessous)
+            <br/><br/>
+            <b>Les seuls champs obligatoires sont les champs start et end, vous pouvez supprimer les autres s'ils ne vous intéressent pas</b>
+
+            <pre class="blocs">
+    {
+        "summary": "Le titre",
+        "location": "Le lieu",
+        "description": "La description",
+        "start": {
+            "dateTime": "2015-05-28T09:00:00-07:00",
+            "timeZone": "Europe/Paris"
+        },
+        "end": {
+            "dateTime": "2015-05-28T17:00:00-07:00",
+            "timeZone": "Europe/Paris"
+        },
+        "recurrence": [
+            "RRULE:FREQ=DAILY;COUNT=2"
+        ],
+        "attendees": [
+            {"email": "invite@gmail.com"}
+        ]
+    }
+            </pre>
+        </div>
+	</body>
+</html>
